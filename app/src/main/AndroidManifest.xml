@@ -9,7 +9,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".AddAreaActivity"
+            android:label="Add Area" />
+        <activity
+            android:name=".ConfirmOrderActivity"
+            android:label="Confirm Order"
+            android:parentActivityName=".PlaceOrdersActivity" />
+        <activity
+            android:name=".NewPharmacy"
+            android:label="Add new Pharmacy"
+            android:parentActivityName=".PlaceOrdersActivity" />
+        <activity
+            android:name=".SalesPersonDetails"
+            android:parentActivityName=".PlaceOrdersActivity" />
+        <activity
+            android:name=".NewArea"
+            android:label="Add new Area"
+            android:parentActivityName=".PlaceOrdersActivity" />
+        <activity
+            android:name=".PlaceOrdersActivity"
+            android:label="Place Order"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,15 +38,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PlaceOrderActivity"
-            android:label="Place Order" />
-        <activity
-            android:name=".ConfirmOrderActivity"
-            android:label="Confirm Order" />
-        <activity android:name=".NewPharmacy" />
-        <activity android:name=".Details" />
-        <activity android:name=".SalesPersonDetails" />
-        <activity android:name=".NewArea"></activity>
+            android:name=".OrderConfirmedActivity"
+            android:parentActivityName=".PlaceOrdersActivity" />
+        <activity android:name=".SignInActivity"></activity>
     </application>
 
 </manifest>

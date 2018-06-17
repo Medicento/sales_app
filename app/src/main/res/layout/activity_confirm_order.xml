@@ -41,6 +41,9 @@
         android:layout_width="match_parent"
         android:layout_height="350dp"
         tools:listitem="@layout/item_ordered_medicine" />
+
+
+
     <RelativeLayout
         android:gravity="center"
         android:layout_width="match_parent"
@@ -72,7 +75,6 @@
             style="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/colorPrimaryDark" />
     </RelativeLayout>
-
     <Button
         android:id="@+id/confirm_order"
         android:layout_width="wrap_content"

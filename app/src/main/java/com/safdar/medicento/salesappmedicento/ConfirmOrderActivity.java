@@ -1,12 +1,13 @@
 package com.safdar.medicento.salesappmedicento;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConfirmOrderActivity extends AppCompatActivity {
@@ -19,11 +20,12 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
 
         mSelectedPharmacyName = findViewById(R.id.pharmacy_selected);
-        mSelectedPharmacyName.setText(b.getString(PlaceOrderActivity.SELECTED_PHARMACY, ""));
-        ListView listView = findViewById(R.id.ordered_medicines_list_confirmation);
-        listView.setAdapter(PlaceOrderActivity.mOrderedMedicineAdapter);
+        mSelectedPharmacyName.setText(b.getString(PlaceOrdersActivity.SELECTED_PHARMACY, ""));
 
-        List<OrderedMedicine> list = PlaceOrderActivity.mOrderedMedicineAdapter.mList;
+        ListView listView = findViewById(R.id.ordered_medicines_list_confirmation);
+        listView.setAdapter(PlaceOrdersActivity.mOrderedMedicineAdapter);
+
+        List<OrderedMedicine> list = PlaceOrdersActivity.mOrderedMedicineAdapter.mList;
 
 
         float total = 0;
@@ -32,5 +34,14 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         }
         TextView totalTv = findViewById(R.id.total_cost);
         totalTv.setText(String.valueOf(total));
+
+        Button btn =findViewById(R.id.confirm_order);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ConfirmOrderActivity.this, OrderConfirmedActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

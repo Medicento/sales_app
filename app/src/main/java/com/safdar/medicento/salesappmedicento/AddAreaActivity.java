@@ -7,17 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.CompletionInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,11 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class AddAreaActivity extends AppCompatActivity implements View.OnClickListener{
 
     Button totalSales, oredrs, returns, earnings,profile,pharmab,areab,newPharma,newArea,fetch;
     AutoCompleteTextView pharma_spinner,area_spinner;
@@ -93,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .appendQueryParameter("area_name",s)
                         .appendQueryParameter("search","Submit Query")
                         .build();
-                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                RequestQueue requestQueue = Volley.newRequestQueue(AddAreaActivity.this);
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, uri.toString(),
                         new Response.Listener<String>() {
                             ArrayAdapter arrayAdapter;
@@ -114,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                                arrayAdapter = new ArrayAdapter(MainActivity.this, R.layout.support_simple_spinner_dropdown_item, arrayList);
+                                arrayAdapter = new ArrayAdapter(AddAreaActivity.this, R.layout.support_simple_spinner_dropdown_item, arrayList);
                                 pharma_spinner.setAdapter(arrayAdapter);
                             }
                         }, new Response.ErrorListener() {
@@ -156,26 +148,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pharma_spinner = (AutoCompleteTextView) findViewById(R.id.pharmacy_spinner);
         area_spinner = (AutoCompleteTextView) findViewById(R.id.area_spinner);
         switch (v.getId()) {
-            case R.id.totalSales: intent = new Intent(MainActivity.this, Details.class);
-                                  intent.putExtra("text", ((Button)v).getText().toString());
-                                  startActivity(intent);
-                                  break;
-            case R.id.orders:     intent = new Intent(MainActivity.this, Details.class);
-                                  intent.putExtra("text", ((Button)v).getText().toString());
-                                  startActivity(intent);
-                                  break;
 
-            case R.id.returns:    intent = new Intent(MainActivity.this, Details.class);
-                                  intent.putExtra("text", ((Button)v).getText().toString());
-                                  startActivity(intent);
-                                  break;
-
-            case R.id.earnings:   intent = new Intent(MainActivity.this, Details.class);
-                                  intent.putExtra("text", ((Button)v).getText().toString());
-                                  startActivity(intent);
-                                  break;
-
-            case R.id.profile:    intent = new Intent(MainActivity.this, SalesPersonDetails.class);
+            case R.id.profile:    intent = new Intent(AddAreaActivity.this, SalesPersonDetails.class);
                                   intent.putExtra("text",((Button)v).getText());
                                   startActivity(intent);
                                   break;
@@ -184,10 +158,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.areab:      area_spinner.showDropDown();
                                   break;
             case R.id.openPlaceOrder:
-                intent = new Intent(this, PlaceOrderActivity.class);
+                intent = new Intent(this, PlaceOrdersActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.add_new_pharma:    intent = new Intent(MainActivity.this, NewPharmacy.class);
+            case R.id.add_new_pharma:    intent = new Intent(AddAreaActivity.this, NewPharmacy.class);
                                          intent.putExtra("area","Shastri Nagar");
                                          intent.putExtra("city","New Delhi");
                                          intent.putExtra("state","Delhi");
@@ -195,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                          startActivity(intent);
                                          break;
 
-            case R.id.add_new_area:    intent = new Intent(MainActivity.this, NewArea.class);
+            case R.id.add_new_area:    intent = new Intent(AddAreaActivity.this, NewArea.class);
                                         startActivity(intent);
                                         break;
         }
@@ -233,6 +207,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         // arrayList.add(0,"Select Employee");
-        area_spinner.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, arrayList));
+        area_spinner.setAdapter(new ArrayAdapter<String>(AddAreaActivity.this, android.R.layout.simple_spinner_dropdown_item, arrayList));
     }
 }

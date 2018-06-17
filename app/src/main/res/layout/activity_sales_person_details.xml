@@ -7,12 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SalesPersonDetails">
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/logo"
-        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,26 +37,4 @@
         android:textSize="20sp"
         android:layout_marginBottom="10dp"
         />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="goBack"
-            android:text="Go Back"
-            android:layout_marginRight="20dp"
-            style="@style/Widget.AppCompat.Button.Colored"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="signOut"
-            android:text="Sign Out"
-            style="@style/Widget.AppCompat.Button.Colored"
-            />
-    </LinearLayout>
 </LinearLayout>

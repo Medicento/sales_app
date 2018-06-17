@@ -1,13 +1,9 @@
 package com.safdar.medicento.salesappmedicento;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class NewArea extends AppCompatActivity {
@@ -17,10 +13,10 @@ public class NewArea extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_area);
-        area = (EditText) findViewById(R.id.newArea);
-        city = (EditText) findViewById(R.id.newCity);
-        state = (EditText) findViewById(R.id.newState);
-        pincode = (EditText) findViewById(R.id.newPincode);
+        area = (EditText) findViewById(R.id.new_area_edit_tv);
+        city = (EditText) findViewById(R.id.new_city_edit_tv);
+        state = (EditText) findViewById(R.id.new_state_edit_tv);
+        pincode = (EditText) findViewById(R.id.new_pincode_edit_tv);
     }
     public void submitArea(View view) {
         areas = area.getText().toString();
@@ -28,10 +24,5 @@ public class NewArea extends AppCompatActivity {
         states = state.getText().toString();
         pincodes = pincode.getText().toString();
         area.onEditorAction(EditorInfo.IME_ACTION_DONE);
-        String method = "area";
-        BackgroundTask backgroundTask = new BackgroundTask(this);
-        backgroundTask.execute(method,areas,citys,states,pincodes);
-        Intent intent = new Intent(NewArea.this,MainActivity.class);
-        startActivity(intent);
     }
 }
