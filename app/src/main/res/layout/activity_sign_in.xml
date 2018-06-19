@@ -57,44 +57,23 @@
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/google_btn"
-            android:layout_width="150dp"
-            android:layout_height="54dp"
-            tools:ignore="ExtraText"
-            style="@style/Widget.AppCompat.ActionBar"/>
-
-        <Button
-            android:id="@+id/sms"
-            android:layout_width="wrap_content"
-            style="@style/Widget.AppCompat.ActionBar"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="@android:color/background_light"
-            android:padding="10dp"
-            android:text="Register with mobile"
-            android:textAlignment="center"
-            android:textSize="12sp"
-            tools:ignore="HardcodedText" />
-
 
     </LinearLayout>
 
     <TextView
-        android:id="@+id/signup_text"
+        android:id="@+id/forgot_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="45dp"
         android:fontFamily="monospace"
         android:gravity="center_horizontal"
-        android:text="Not a member SignUp"
+        android:text="Forgot Password"
         android:textColor="?android:attr/colorForeground"
         android:textSize="14sp"
         android:textStyle="bold"
         android:typeface="normal"
-        tools:ignore="HardcodedText"
-        />
+        tools:ignore="HardcodedText" />
 
 
 </LinearLayout>
