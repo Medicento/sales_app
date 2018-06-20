@@ -14,6 +14,12 @@ public class SignInActivity extends AppCompatActivity {
     EditText mPasswordEditTv;
 
     @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);

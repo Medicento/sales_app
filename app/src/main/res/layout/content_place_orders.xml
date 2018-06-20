@@ -10,32 +10,59 @@
     tools:showIn="@layout/app_bar_place_orders"
     android:layout_margin="4dp">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="?android:attr/listDivider" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="horizontal">
 
-        <TextView
+        <View
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/listDivider" />
+
+        <Spinner
+            android:id="@+id/area_edit_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="Pharmacy : "
-            android:textColor="@color/colorAccent"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:spinnerMode="dialog"
+            style="@android:style/Widget.Holo.Light.Spinner"
+            android:prompt="@string/area_promt"
+            />
 
-        <AutoCompleteTextView
+        <View
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/listDivider"
+            />
+        <Spinner
             android:id="@+id/pharmacy_edit_tv"
             android:layout_width="0dp"
+            android:spinnerMode="dialog"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="Enter Pharmacy"
-            android:inputType="textPhonetic"
-            android:textColor="@color/colorPrimaryDark" />
+            android:prompt="@string/pharmacy_prompt"
+            style="@android:style/Widget.Holo.Light.Spinner"
+            android:layout_weight="1"/>
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/listDivider"
+            />
+
     </LinearLayout>
 
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="?android:attr/listDivider" />
     <TextView
         android:id="@+id/error_in_pharmacy_edit_tv"
         style="@style/Base.TextAppearance.AppCompat.Small"
@@ -186,6 +213,12 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:background="?android:attr/listDivider" />
+
+    <ImageView
+        android:id="@+id/no_network_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/medi"/>
 
     <ListView
         android:id="@+id/ordered_medicines_list"

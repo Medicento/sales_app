@@ -1,8 +1,11 @@
 package com.safdar.medicento.salesappmedicento;
 
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -21,19 +24,29 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.safdar.medicento.salesappmedicento.networking.SalesDataLoader;
+import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
+import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceOrdersActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, LoaderManager.LoaderCallbacks<Object> {
     public static final String SELECTED_PHARMACY = "selected_pharmacy";
     public static final String USER_PASSWORD = "password";
     public static final String USER_EMAIL = "email";
+    private static final int SALES_AREA_LOADER_ID = 1;
+    private static final int SALES_PHARMACY_LOADER = 2;
+    private static final String AREA_DATA_URL = "https://medicento-api.herokuapp.com/area";
+    private static final String PHARMACY_DATA_URL = "https://medicento-api.herokuapp.com/pharma";
 
-    AutoCompleteTextView mSelectPharmacyTv;
+    Spinner mSelectAreaTv;
+    Spinner mSelectPharmacyTv;
     TextView mErrorInPharmacyTv;
     AutoCompleteTextView mSelectMedicineTv;
     TextView mErrorInMedicineTv;
@@ -44,8 +57,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
     Button mDecQty;
     int mSelectedMedicineIndex;
     ListView mOrderedMedicinesListView;
+    ArrayAdapter<String> mAreaNameAdapter;
     ArrayAdapter<CharSequence> mMedicineAdapter;
-    ArrayAdapter<CharSequence> mPharmacyAdapter;
+    ArrayAdapter<String> mPharmacyAdapter;
+    ArrayList<SalesArea> mSalesAreaDetails;
+    ArrayList<SalesPharmacy> mSalesPharmacyDetails;
     public static OrderedMedicineAdapter mOrderedMedicineAdapter;
     InputMethodManager im;
     Boolean validPharmacyFlag = false;
@@ -89,6 +105,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
         List<OrderedMedicine> medicines = new ArrayList<>();
         mOrderedMedicineAdapter = new OrderedMedicineAdapter(this, R.layout.item_ordered_medicine, medicines);
         mOrderedMedicinesListView.setAdapter(mOrderedMedicineAdapter);
+
+
+        LoaderManager loaderManager = getLoaderManager();
+        loaderManager.initLoader(SALES_AREA_LOADER_ID, null, this);
+        loaderManager.initLoader(SALES_PHARMACY_LOADER, null, this);
     }
 
 
@@ -117,7 +138,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
         if (id == R.id.action_proceed) {
             if (canWeJumpToConfirm()) {
                 Intent intent = new Intent(PlaceOrdersActivity.this, ConfirmOrderActivity.class);
-                intent.putExtra(SELECTED_PHARMACY, mSelectPharmacyTv.getText().toString());
+                intent.putExtra(SELECTED_PHARMACY, mSelectPharmacyTv.getSelectedItem().toString());
                 startActivity(intent);
                 return true;
             }
@@ -205,6 +226,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
 
         /////////////////Views Initialization///////////////////////
         mSelectPharmacyTv = findViewById(R.id.pharmacy_edit_tv);
+        mSelectAreaTv = findViewById(R.id.area_edit_tv);
         mErrorInPharmacyTv = findViewById(R.id.error_in_pharmacy_edit_tv);
         mSelectMedicineTv = findViewById(R.id.medicine_edit_tv);
         mErrorInMedicineTv = findViewById(R.id.error_in_medicine_edit_tv);
@@ -218,41 +240,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
         mIncQty.setOnClickListener(this);
         mDecQty.setOnClickListener(this);
 
-        mPharmacyAdapter = ArrayAdapter.createFromResource(this, R.array.pharma, android.R.layout.simple_list_item_1);
-        mSelectPharmacyTv.setAdapter(mPharmacyAdapter);
-        mSelectPharmacyTv.setThreshold(0);
-
         mMedicineAdapter = ArrayAdapter.createFromResource(this, R.array.medicines, android.R.layout.simple_list_item_1);
         mSelectMedicineTv.setAdapter(mMedicineAdapter);
         mSelectMedicineTv.setThreshold(0);
 
-        mSelectPharmacyTv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mSelectPharmacyTv.clearFocus();
-            }
-        });
 
-        mSelectPharmacyTv.setValidator(new AutoCompleteTextView.Validator() {
-            @Override
-            public boolean isValid(CharSequence text) {
-                if (mPharmacyAdapter.getPosition(text.toString()) == -1) {
-                    mErrorInPharmacyTv.setVisibility(View.VISIBLE);
-                    clearOrderShowcase();
-                    validPharmacyFlag = false;
-                    return false;
-                } else {
-                    mErrorInPharmacyTv.setVisibility(View.GONE);
-                    validPharmacyFlag = true;
-                    return true;
-                }
-            }
-
-            @Override
-            public CharSequence fixText(CharSequence invalidText) {
-                return null;
-            }
-        });
         mSelectMedicineTv.setValidator(new AutoCompleteTextView.Validator() {
             @Override
             public boolean isValid(CharSequence text) {
@@ -305,5 +297,47 @@ public class PlaceOrdersActivity extends AppCompatActivity
             return false;
         }
         return true;
+    }
+//////////////////////////////////////Loader_Callbacks///////////////////////////////////////////////////////////////////////////////
+    @Override
+    public Loader<Object> onCreateLoader(int id, Bundle args) {
+        if (id == SALES_AREA_LOADER_ID) {
+            Uri baseUri = Uri.parse(AREA_DATA_URL);
+            Uri.Builder builder = baseUri.buildUpon();
+            return new SalesDataLoader(this, builder.toString(), getString(R.string.fetch_area_action));
+        } else if (id == SALES_PHARMACY_LOADER) {
+            Uri baseUri = Uri.parse(PHARMACY_DATA_URL);
+            Uri.Builder builder = baseUri.buildUpon();
+            return new SalesDataLoader(this, builder.toString(), getString(R.string.fetch_pharmacy_action));
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Object> loader, Object data) {
+        switch (loader.getId()) {
+            case SALES_AREA_LOADER_ID:
+                mSalesAreaDetails = (ArrayList<SalesArea>) data;
+                ArrayList<String> areaList = new ArrayList<>();
+                for (SalesArea salesArea: mSalesAreaDetails) {
+                    areaList.add(salesArea.getAreaName());
+                }
+                mAreaNameAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_activated_1, areaList);
+                mSelectAreaTv.setAdapter(mAreaNameAdapter);
+                break;
+            case SALES_PHARMACY_LOADER:
+                mSalesPharmacyDetails = (ArrayList<SalesPharmacy>) data;
+                ArrayList<String> pharmacyList = new ArrayList<>();
+                for (SalesPharmacy salesPharmacy: mSalesPharmacyDetails) {
+                    pharmacyList.add(salesPharmacy.getPharmacyName());
+                }
+                mPharmacyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_activated_1, pharmacyList);
+                mSelectPharmacyTv.setAdapter(mPharmacyAdapter);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Object> loader) {
+
     }
 }
