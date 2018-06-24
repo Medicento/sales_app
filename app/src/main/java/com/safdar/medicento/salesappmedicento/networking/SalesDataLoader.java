@@ -38,6 +38,8 @@ public class SalesDataLoader extends AsyncTaskLoader {
             return SalesDataExtractor.initiateConnection(mUrl, mAction, mContext);
         } else if (mAction.equals(mContext.getString(R.string.login_action))) {
             return SalesDataExtractor.initiateConnection(mUrl, mAction, mContext);
+        } else if (mAction.equals(mContext.getString(R.string.fetch_medicine_action))) {
+            return SalesDataExtractor.initiateConnection(mUrl, mAction, mContext);
         }
         return null;
     }

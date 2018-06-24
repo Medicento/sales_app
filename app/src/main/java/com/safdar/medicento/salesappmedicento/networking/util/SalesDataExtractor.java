@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.safdar.medicento.salesappmedicento.R;
+import com.safdar.medicento.salesappmedicento.networking.data.Medicine;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPerson;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
@@ -28,9 +29,10 @@ public class SalesDataExtractor {
     public static Object initiateConnection(String stringUrl, String action, Context ctxt) {
         String jsonResponse = "";
         URL url = getUrl(stringUrl);
-        ArrayList<SalesArea> salesAreasList = null;
-        ArrayList<SalesPharmacy> salesPharmaciesList = null;
-        SalesPerson salesPerson = null;
+        ArrayList<SalesArea> salesAreasList;
+        ArrayList<SalesPharmacy> salesPharmaciesList;
+        ArrayList<Medicine> medicinesDataList;
+        SalesPerson salesPerson;
         try {
             jsonResponse = makeHttpRequest(url);
         } catch (IOException e) {
@@ -45,8 +47,32 @@ public class SalesDataExtractor {
         } else if (action.equals(ctxt.getString(R.string.login_action)))  {
             salesPerson = extractSalesPersonFromJson(jsonResponse);
             return salesPerson;
+        } else if (action.equals(ctxt.getString(R.string.fetch_medicine_action))) {
+            medicinesDataList = extractMedicineDataFromJson(jsonResponse);
+            return medicinesDataList;
         }
         return null;
+    }
+
+    private static ArrayList<Medicine> extractMedicineDataFromJson(String jsonResponse) {
+        ArrayList<Medicine> medicines = new ArrayList<>();
+        try {
+            JSONObject baseObject = new JSONObject(jsonResponse);
+            JSONArray areasArray = baseObject.getJSONArray("products");
+            for (int i = 0; i < areasArray.length(); i++) {
+                JSONObject medicineObject = areasArray.optJSONObject(i);
+                medicines.add(new Medicine(
+                        medicineObject.getString("medicento_name"),
+                        medicineObject.getString("company_name"),
+                        medicineObject.getInt("price"),
+                        medicineObject.getString("_id")
+                ));
+            }
+            Log.v("Saf", medicines.size() + "");
+        } catch (JSONException e) {
+            Log.e("Saf", e.toString());
+        }
+        return medicines;
     }
 
     private static SalesPerson extractSalesPersonFromJson(String jsonResponse) {
@@ -81,7 +107,6 @@ public class SalesDataExtractor {
                         areaObject.getString("area_id")
                 ));
             }
-            Log.v("Saf", salesPharmacies.size() + "");
         } catch (JSONException e) {
             Log.e("Saf", e.toString());
         }

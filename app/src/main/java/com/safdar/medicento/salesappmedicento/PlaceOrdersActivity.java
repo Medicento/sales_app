@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.safdar.medicento.salesappmedicento.helperData.Constants;
 import com.safdar.medicento.salesappmedicento.networking.SalesDataLoader;
+import com.safdar.medicento.salesappmedicento.networking.data.Medicine;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
 
@@ -63,8 +64,9 @@ public class PlaceOrdersActivity extends AppCompatActivity
     int mSelectedMedicineIndex;
     ListView mOrderedMedicinesListView;
     ArrayAdapter<String> mAreaNameAdapter;
-    ArrayAdapter<CharSequence> mMedicineAdapter;
+    ArrayAdapter<String> mMedicineAdapter;
     ArrayAdapter<String> mPharmacyAdapter;
+    private ArrayList<Medicine> mMedicineDataList;
     static ArrayList<SalesArea> mSalesAreaDetails;
     ArrayList<SalesPharmacy> mSalesPharmacyDetails;
     public static OrderedMedicineAdapter mOrderedMedicineAdapter;
@@ -73,6 +75,8 @@ public class PlaceOrdersActivity extends AppCompatActivity
     static SharedPreferences mSharedPreferences;
     Snackbar mSnackbar;
     CoordinatorLayout coordinatorLayout;
+    boolean pharmaLoadFlag, medicineLoadFlag;
+    NavigationView mNavigationView;
 
 /////////////////////////////////////////AppCompat, Navigation, ClickListener_Overrides//////////////////////////////////////////////////////////////////////////////////
 
@@ -93,8 +97,8 @@ public class PlaceOrdersActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "Welcome!!", Toast.LENGTH_SHORT).show();
 
-                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-                addSalesPersonDetailsToNavDrawer(navigationView);
+                mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+                addSalesPersonDetailsToNavDrawer();
             } else {
                 Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                 finish();
@@ -117,11 +121,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView= (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
 
 
-        addSalesPersonDetailsToNavDrawer(navigationView);
+        addSalesPersonDetailsToNavDrawer();
         mProgressBar = findViewById(R.id.area_pharma_fetch_progress);
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         mSnackbar = Snackbar.make(coordinatorLayout, "Please wait while the data is being loaded...", Snackbar.LENGTH_INDEFINITE);
@@ -139,6 +143,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
 
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(Constants.SALES_AREA_LOADER_ID, null, this);
+        getLoaderManager().initLoader(Constants.MEDICINE_DATA_LOADER_ID, null, this);
     }
 
 
@@ -220,8 +225,8 @@ public class PlaceOrdersActivity extends AppCompatActivity
                 orderedMedicine = new OrderedMedicine(mSelectedMedicineTv.getText().toString(),
                         mSelectedMedicineCompanyTv.getText().toString(),
                         1,
-                        20,
-                        20
+                        mMedicineDataList.get(mSelectedMedicineIndex).getPrice(),
+                        mMedicineDataList.get(mSelectedMedicineIndex).getPrice()
                 );
                 mOrderedMedicineAdapter.add(orderedMedicine);
                 break;
@@ -241,20 +246,24 @@ public class PlaceOrdersActivity extends AppCompatActivity
     }
 /////////////////////////////////////////Helper_Methods//////////////////////////////////////////////////////////////////////////////////
 
-    private void addSalesPersonDetailsToNavDrawer(NavigationView nv) {
+    private void addSalesPersonDetailsToNavDrawer() {
 
-        View headerView = nv.getHeaderView(0);
+        View headerView = mNavigationView.getHeaderView(0);
         TextView navHeaderSalesmanName = headerView.findViewById(R.id.username_header);
         TextView navHeaderSalesmanEmail = headerView.findViewById(R.id.user_email_header);
 
         navHeaderSalesmanName.setText(mSharedPreferences.getString(Constants.SALE_PERSON_NAME, ""));
         navHeaderSalesmanEmail.setText(mSharedPreferences.getString(Constants.SALE_PERSON_EMAIL, ""));
 
-        Menu menu = nv.getMenu();
-        menu.getItem(1).setTitle(menu.getItem(1).getTitle().toString() + mSharedPreferences.getFloat(Constants.SALE_PERSON_TOTAL_SALES, 0));
+        Menu menu = mNavigationView.getMenu();
+        if (mSharedPreferences.getFloat(Constants.SALE_PERSON_TOTAL_SALES, -1) == -1) {
+            return;
+        }
+
+        menu.getItem(1).setTitle(menu.getItem(1).getTitle().toString() + mSharedPreferences.getFloat(Constants.SALE_PERSON_TOTAL_SALES, -1));
         menu.getItem(2).setTitle(menu.getItem(2).getTitle().toString() + mSharedPreferences.getFloat(Constants.SALE_PERSON_NO_OF_ORDERS, 0));
-        menu.getItem(3).setTitle(menu.getItem(3).getTitle().toString() + mSharedPreferences.getInt(Constants.SALE_PERSON_RETURNS, 0));
-        menu.getItem(4).setTitle(menu.getItem(4).getTitle().toString() + mSharedPreferences.getFloat(Constants.SALE_PERSON_EARNINGS, 0));
+        menu.getItem(3).setTitle(menu.getItem(3).getTitle().toString() + mSharedPreferences.getInt(Constants.SALE_PERSON_RETURNS, -1));
+        menu.getItem(4).setTitle(menu.getItem(4).getTitle().toString() + mSharedPreferences.getFloat(Constants.SALE_PERSON_EARNINGS, -1));
     }
 
     private void clearUserDetails() {
@@ -271,8 +280,8 @@ public class PlaceOrdersActivity extends AppCompatActivity
 
     private void showSelectedItemDetails(int pos) {
         mSelectedMedicineTv.setText(mMedicineAdapter.getItem(pos));
-        mSelectedMedicineCompanyTv.setText("Cipla");
-        mSelectedMedicineRateTv.setText("20");
+        mSelectedMedicineCompanyTv.setText(mMedicineDataList.get(pos).getCompanyName());
+        mSelectedMedicineRateTv.setText("Rs. " + mMedicineDataList.get(pos).getPrice() + "/box");
         mSelectedMedicineIndex = pos;
         mSelectMedicineTv.setText("");
     }
@@ -282,7 +291,6 @@ public class PlaceOrdersActivity extends AppCompatActivity
         /////////////////Views Initialization///////////////////////
         mSelectPharmacyTv = findViewById(R.id.pharmacy_edit_tv);
         mSelectAreaTv = findViewById(R.id.area_edit_tv);
-        mErrorInPharmacyTv = findViewById(R.id.error_in_pharmacy_edit_tv);
         mSelectMedicineTv = findViewById(R.id.medicine_edit_tv);
         mErrorInMedicineTv = findViewById(R.id.error_in_medicine_edit_tv);
         mSelectedMedicineTv = findViewById(R.id.selected_medicine);
@@ -297,8 +305,6 @@ public class PlaceOrdersActivity extends AppCompatActivity
         mIncQty.setOnClickListener(this);
         mDecQty.setOnClickListener(this);
 
-        mMedicineAdapter = ArrayAdapter.createFromResource(this, R.array.medicines, android.R.layout.simple_list_item_1);
-        mSelectMedicineTv.setAdapter(mMedicineAdapter);
         mSelectMedicineTv.setThreshold(0);
 
         mSelectMedicineTv.setValidator(new AutoCompleteTextView.Validator() {
@@ -379,6 +385,12 @@ public class PlaceOrdersActivity extends AppCompatActivity
         }
         return true;
     }
+
+    private void dismissSnackbar() {
+        if (medicineLoadFlag && pharmaLoadFlag) {
+            mSnackbar.dismiss();
+        }
+    }
 //////////////////////////////////////Loader_Callbacks///////////////////////////////////////////////////////////////////////////////
     @Override
     public Loader<Object> onCreateLoader(int id, Bundle args) {
@@ -391,6 +403,10 @@ public class PlaceOrdersActivity extends AppCompatActivity
             Uri baseUri = Uri.parse(Constants.PHARMACY_DATA_URL);
             Uri.Builder builder = baseUri.buildUpon();
             return new SalesDataLoader(this, builder.toString(), getString(R.string.fetch_pharmacy_action));
+        } else if (id == Constants.MEDICINE_DATA_LOADER_ID) {
+            Uri baseUri = Uri.parse(Constants.MEDICINE_DATA_URL);
+            Uri.Builder builder = baseUri.buildUpon();
+            return new SalesDataLoader(this, builder.toString(), getString(R.string.fetch_medicine_action));
         }
         return null;
     }
@@ -419,8 +435,20 @@ public class PlaceOrdersActivity extends AppCompatActivity
                 }
                 mPharmacyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_activated_1, pharmacyList);
                 mSelectPharmacyTv.setAdapter(mPharmacyAdapter);
-                mSnackbar.dismiss();
+                pharmaLoadFlag = true;
+                dismissSnackbar();
                 break;
+            case Constants.MEDICINE_DATA_LOADER_ID:
+                mMedicineDataList = (ArrayList<Medicine>) data;
+                ArrayList<String> medicineList = new ArrayList<>();
+                for (Medicine medicine: mMedicineDataList) {
+                    medicineList.add(medicine.getMedicentoName());
+                }
+                mMedicineAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, medicineList);
+                mSelectMedicineTv.setAdapter(mMedicineAdapter);
+                mSelectMedicineTv.setThreshold(0);
+                medicineLoadFlag = true;
+                dismissSnackbar();
         }
     }
 

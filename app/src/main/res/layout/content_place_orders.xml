@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:showIn="@layout/app_bar_place_orders"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_place_orders">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +31,7 @@
                 android:spinnerMode="dialog" />
 
             <View
-                android:layout_width="3dp"
+                android:layout_width="2dp"
                 android:layout_height="match_parent"
                 android:background="#000000" />
 
@@ -49,45 +47,13 @@
         </LinearLayout>
 
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:background="?android:attr/listDivider" />
-
-        <TextView
-            android:id="@+id/error_in_pharmacy_edit_tv"
-            style="@style/Base.TextAppearance.AppCompat.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Please enter valid pharmacy name"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="gone" />
-
-        <LinearLayout
+        <AutoCompleteTextView
+            android:id="@+id/medicine_edit_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="Order : "
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <AutoCompleteTextView
-                android:id="@+id/medicine_edit_tv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:hint="Enter Medicine"
-                android:inputType="textPhonetic"
-                android:textColor="@color/colorPrimaryDark" />
-        </LinearLayout>
+            android:hint="Enter Medicine"
+            android:inputType="textPhonetic"
+            android:textColor="@color/colorPrimaryDark" />
 
         <TextView
             android:id="@+id/error_in_medicine_edit_tv"
@@ -99,86 +65,80 @@
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone" />
 
-        <LinearLayout
-            android:background="@drawable/border"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal">
+            android:layout_height="wrap_content">
 
-            <View
-                android:id="@+id/divider"
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                android:id="@+id/selected_medicine"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/name_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="Name"
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp" />
+                android:background="@drawable/border">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
+                <TextView
+                    android:id="@+id/selected_medicine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Name"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="20sp" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/selected_medicine_company"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/company_name_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="2"
-                android:text="Company"
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp" />
+                android:layout_below="@id/name_layout"
+                android:background="@drawable/border">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
+                <TextView
+                    android:id="@+id/selected_medicine_company"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Company"
+                    android:textColor="@color/colorRedDark"
+                    android:textSize="20sp" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/selected_medicine_rate"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="Rate"
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp" />
+                android:layout_below="@+id/company_name_layout"
+                android:background="@drawable/border">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
+                <TextView
+                    android:id="@+id/selected_medicine_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Rate"
+                    android:textColor="@color/colorGreen"
+                    android:textSize="20sp" />
+            </LinearLayout>
 
-            <Button
-                android:id="@+id/dec_qty"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@drawable/ic_remove_circle_red_800_24dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:gravity="bottom"
+                android:orientation="vertical">
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
+                <Button
+                    android:id="@+id/inc_qty"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/ic_add_circle_green_900_48dp" />
 
-            <Button
-                android:id="@+id/inc_qty"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@drawable/ic_add_circle_green_900_48dp" />
+                <Button
+                    android:id="@+id/dec_qty"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/ic_remove_circle_red_800_24dp" />
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="match_parent"
-                android:background="?android:attr/listDivider" />
-        </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
 
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Large"
@@ -192,10 +152,11 @@
 
         <ProgressBar
             android:id="@+id/area_pharma_fetch_progress"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
+
         <ImageView
             android:id="@+id/no_network_icon"
             android:layout_width="100dp"

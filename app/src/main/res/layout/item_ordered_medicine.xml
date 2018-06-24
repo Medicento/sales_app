@@ -5,22 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
-
     <TextView
-
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:id="@+id/medicine_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        style="@style/Base.TextAppearance.AppCompat"
+        android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold"
         tools:text="Medicine" />
 
     <TextView
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="4dp"
         android:id="@+id/medicine_company"
         style="@style/Base.TextAppearance.AppCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorRedDark"
         android:layout_below="@+id/medicine_name"
         tools:text="Company" />
 
@@ -35,6 +36,7 @@
 
     <TextView
         style="@style/Base.TextAppearance.AppCompat"
+        android:layout_toRightOf="@+id/medicine_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -50,6 +52,7 @@
         android:background="@drawable/ic_rupee_symbol" />
 
     <TextView
+        android:textColor="@color/colorGreen"
         android:id="@+id/medicine_cost"
         style="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"

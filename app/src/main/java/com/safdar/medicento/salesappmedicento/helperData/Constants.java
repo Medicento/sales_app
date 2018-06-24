@@ -4,10 +4,12 @@ public class Constants {
     public static final String USER_LOGIN_URL = "https://medicento-api.herokuapp.com/user/login";
     public static final String AREA_DATA_URL = "https://medicento-api.herokuapp.com/area";
     public static final String PHARMACY_DATA_URL = "https://medicento-api.herokuapp.com/pharma";
+    public static final String MEDICINE_DATA_URL = "https://medicento-api.herokuapp.com/product/medimap";
 
     public static final int LOG_IN_LOADER_ID = 4;
     public static final int SALES_AREA_LOADER_ID = 1;
     public static final int SALES_PHARMACY_LOADER = 2;
+    public static final int MEDICINE_DATA_LOADER_ID = 3;
 
     public static final int RC_SIGN_IN = 123;
     public static final String SALE_PERSON_EMAIL = "email";
