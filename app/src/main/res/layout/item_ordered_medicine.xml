@@ -7,6 +7,8 @@
     android:orientation="horizontal">
 
     <TextView
+
+        android:layout_marginStart="8dp"
         android:id="@+id/medicine_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,6 +16,7 @@
         tools:text="Medicine" />
 
     <TextView
+        android:layout_marginStart="8dp"
         android:id="@+id/medicine_company"
         style="@style/Base.TextAppearance.AppCompat"
         android:layout_width="wrap_content"
@@ -27,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/rupee_symbol"
+        android:layout_toStartOf="@+id/rupee_symbol"
         tools:text="123" />
 
     <TextView
@@ -35,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/medicine_qty"
+        android:layout_toStartOf="@+id/medicine_qty"
         android:text="Qty:" />
 
     <ImageView
@@ -43,7 +46,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/medicine_cost"
+        android:layout_toStartOf="@+id/medicine_cost"
         android:background="@drawable/ic_rupee_symbol" />
 
     <TextView
@@ -51,8 +54,9 @@
         style="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        tools:text="123" />
+        tools:text="123"
+        android:layout_marginEnd="8dp"/>
 
 </RelativeLayout>

@@ -31,4 +31,5 @@
     <string name="pharmacy_prompt">Select Pharmacy</string>
     <string name="fetch_area_action">Fetch area action</string>
     <string name="fetch_pharmacy_action">Fetch pharmacy action</string>
+    <string name="login_action">Login action</string>
 </resources>

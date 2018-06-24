@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.safdar.medicento.salesappmedicento.R;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
+import com.safdar.medicento.salesappmedicento.networking.data.SalesPerson;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
 
 import org.json.JSONArray;
@@ -29,6 +30,7 @@ public class SalesDataExtractor {
         URL url = getUrl(stringUrl);
         ArrayList<SalesArea> salesAreasList = null;
         ArrayList<SalesPharmacy> salesPharmaciesList = null;
+        SalesPerson salesPerson = null;
         try {
             jsonResponse = makeHttpRequest(url);
         } catch (IOException e) {
@@ -40,19 +42,38 @@ public class SalesDataExtractor {
         } else if (action.equals(ctxt.getString(R.string.fetch_pharmacy_action))) {
             salesPharmaciesList = extractSalesPharmaciesFromJson(jsonResponse);
             return salesPharmaciesList;
+        } else if (action.equals(ctxt.getString(R.string.login_action)))  {
+            salesPerson = extractSalesPersonFromJson(jsonResponse);
+            return salesPerson;
         }
         return null;
     }
 
+    private static SalesPerson extractSalesPersonFromJson(String jsonResponse) {
+        SalesPerson salesPerson = null;
+        try {
+            JSONObject baseObject = new JSONObject(jsonResponse);
+            JSONArray userArray = baseObject.getJSONArray("Sales_Person");
+            JSONObject user = userArray.optJSONObject(0);
+            salesPerson = new SalesPerson(user.getString("Name"),
+                    user.getLong("Total_sales"),
+                    user.getInt("Returns"),
+                    user.getLong("Earnings"),
+                    user.getString("_id"),
+                    user.getString("Allocated_Area"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return salesPerson;
+    }
+
     private static ArrayList<SalesPharmacy> extractSalesPharmaciesFromJson(String jsonResponse) {
-        Log.v("Saf", "here");
         ArrayList<SalesPharmacy> salesPharmacies = new ArrayList<>();
         try {
             JSONObject baseObject = new JSONObject(jsonResponse);
             JSONArray areasArray = baseObject.getJSONArray("pharmas");
             for (int i = 0; i < areasArray.length(); i++) {
                 JSONObject areaObject = areasArray.optJSONObject(i);
-                Log.v("Saf", areaObject.getString("pharma_name"));
                 salesPharmacies.add(new SalesPharmacy(
                         areaObject.getString("pharma_name"),
                         areaObject.getString("pharma_address"),

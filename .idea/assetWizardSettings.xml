@@ -62,7 +62,7 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="imageAsset" value="$USER_HOME$/Pictures/no-internet-connection.png" />
-                                      <entry key="outputName" value="ic_no_network" />
+                                      <entry key="outputName" value="ic_no_network_available" />
                                     </map>
                                   </option>
                                 </PersistentState>

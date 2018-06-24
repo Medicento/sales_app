@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.safdar.medicento.salesappmedicento.helperData.Constants;
+
 import java.util.List;
 
 public class ConfirmOrderActivity extends AppCompatActivity {
@@ -19,8 +21,9 @@ public class ConfirmOrderActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
 
+        final String selectedPharmacy = b.getString(Constants.SELECTED_PHARMACY, "");
         mSelectedPharmacyName = findViewById(R.id.pharmacy_selected);
-        mSelectedPharmacyName.setText(b.getString(PlaceOrdersActivity.SELECTED_PHARMACY, ""));
+        mSelectedPharmacyName.setText(selectedPharmacy);
 
         ListView listView = findViewById(R.id.ordered_medicines_list_confirmation);
         listView.setAdapter(PlaceOrdersActivity.mOrderedMedicineAdapter);
@@ -36,10 +39,13 @@ public class ConfirmOrderActivity extends AppCompatActivity {
         totalTv.setText(String.valueOf(total));
 
         Button btn =findViewById(R.id.confirm_order);
+        final float finalTotal = total;
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ConfirmOrderActivity.this, OrderConfirmedActivity.class);
+                intent.putExtra(Constants.SELECTED_PHARMACY, selectedPharmacy);
+                intent.putExtra(Constants.ORDER_TOTAL_COST, finalTotal);
                 startActivity(intent);
             }
         });

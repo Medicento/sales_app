@@ -41,7 +41,7 @@
         <activity
             android:name=".OrderConfirmedActivity"
             android:parentActivityName=".PlaceOrdersActivity" />
-        <activity android:name=".SignInActivity"></activity>
+        <activity android:name=".SignInActivity"/>
     </application>
 
 </manifest>

@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.safdar.medicento.salesappmedicento.helperData.Constants;
+
 import java.util.Date;
 
 public class OrderConfirmedActivity extends AppCompatActivity implements View.OnClickListener{
@@ -19,6 +21,15 @@ public class OrderConfirmedActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirmed);
+
+        Bundle b = getIntent().getExtras();
+
+        TextView selectedPharmacyTv = findViewById(R.id.pharmacy_selected);
+        selectedPharmacyTv.setText(b.getString(Constants.SELECTED_PHARMACY));
+
+        TextView orderTotalCost = findViewById(R.id.total_cost);
+        orderTotalCost.setText(String.valueOf(b.getFloat(Constants.ORDER_TOTAL_COST)));
+
         mShareBtn = findViewById(R.id.share_order);
         mPlaceNewOrderBtn = findViewById(R.id.place_new_order);
         mShareBtn.setOnClickListener(this);
