@@ -14,6 +14,8 @@ public class Constants {
     public static final int PLACE_ORDER_LOADER_ID = 5;
 
     public static final int RC_SIGN_IN = 123;
+    public static final int RC_CONFIRM_ORDER = 456;
+
     public static final String SALE_PERSON_EMAIL = "email";
     public static final String USER_PASSWORD = "password";
     public static final String SALE_PERSON_NAME = "salesPersonName";

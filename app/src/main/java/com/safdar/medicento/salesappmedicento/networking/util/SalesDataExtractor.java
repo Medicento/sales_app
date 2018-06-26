@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.safdar.medicento.salesappmedicento.R;
 import com.safdar.medicento.salesappmedicento.helperData.Constants;
 import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicine;
-import com.safdar.medicento.salesappmedicento.R;
 import com.safdar.medicento.salesappmedicento.networking.data.Medicine;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPerson;
@@ -18,18 +18,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class SalesDataExtractor {
 
@@ -60,12 +57,17 @@ public class SalesDataExtractor {
             medicinesDataList = extractMedicineDataFromJson(jsonResponse);
             return medicinesDataList;
         } else if (action.equals(ctxt.getString(R.string.place_order_action))) {
-            extractJsonFromOrderItemsList(data, url);
+            String jsonData = extractJsonFromOrderItemsList(data, url);
+            try {
+                return sendJsonDataToServer(url, jsonData);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
 
-    private static void extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data,URL url) {
+    private static String extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data, URL url) {
         JSONArray orderItems = new JSONArray();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         try {
@@ -80,15 +82,10 @@ public class SalesDataExtractor {
                 object.put("salesperson_id", sp.getString(Constants.SALE_PERSON_ID,""));
                 orderItems.put(object);
             }
-            Log.v("Saf", "\n" + orderItems.toString(1));
         }catch (JSONException e) {
             Log.v("Saf", e.toString());
         }
-        try {
-            sendJsonDataToServer(url, orderItems.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return orderItems.toString();
     }
 
     private static ArrayList<Medicine> extractMedicineDataFromJson(String jsonResponse) {
@@ -203,27 +200,29 @@ public class SalesDataExtractor {
         return jsonResponse;
     }
 
-    private static String sendJsonDataToServer(URL url, String jsonData) throws IOException {
+    private static String[] sendJsonDataToServer(URL url, String jsonData) throws IOException {
         String jsonResponse = "";
         if (url == null) {
-            return jsonResponse;
+            return null;
         }
+
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
-            Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
-            writer.write(jsonData);
-            writer.close();
+            urlConnection.setUseCaches(false);
             urlConnection.setConnectTimeout(10000);
             urlConnection.setReadTimeout(15000);
+            urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.connect();
+            OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+            writer.write(jsonData);
+            writer.close();
             if (urlConnection.getResponseCode() == 200) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
-                Log.v("Saf", jsonResponse.toString());
             } else {
                 Log.e("Saf", "Error response code : " + urlConnection.getResponseCode());
             }
@@ -237,7 +236,19 @@ public class SalesDataExtractor {
                 inputStream.close();
             }
         }
-        return jsonResponse;
+        return extractIdAndDateFromJson(jsonResponse);
+    }
+
+    private static String[] extractIdAndDateFromJson(String jsonResponse) {
+        String details[] = new String[2];
+        try {
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            details[0] = jsonObject.getString("order_id");
+            details[1] = jsonObject.getString("delivery_date");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return details;
     }
 
     private static String readFromStream(InputStream inputStream) throws IOException {

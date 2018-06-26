@@ -2,7 +2,6 @@ package com.safdar.medicento.salesappmedicento;
 
 import android.annotation.SuppressLint;
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -44,8 +43,6 @@ import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class PlaceOrdersActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, LoaderManager.LoaderCallbacks<Object> {
@@ -93,6 +90,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == Constants.RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "Welcome!!", Toast.LENGTH_SHORT).show();
@@ -101,6 +99,13 @@ public class PlaceOrdersActivity extends AppCompatActivity
             } else {
                 Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                 finish();
+            }
+        } else if (requestCode == Constants.RC_CONFIRM_ORDER) {
+            if (resultCode == RESULT_OK) {
+                mOrderedMedicineAdapter.clear();
+                Intent intent = new Intent(this, OrderConfirmedActivity.class);
+                intent.putExtra(Constants.SELECTED_PHARMACY, mSelectPharmacyTv.getSelectedItem().toString());
+                startActivity(intent);
             }
         }
     }
@@ -141,7 +146,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
             if (canWeJumpToConfirm()) {
                 Intent intent = new Intent(PlaceOrdersActivity.this, ConfirmOrderActivity.class);
                 intent.putExtra(Constants.SELECTED_PHARMACY, mSelectPharmacyTv.getSelectedItem().toString());
-                startActivity(intent);
+                startActivityForResult(intent, Constants.RC_CONFIRM_ORDER);
                 return true;
             }
         }
@@ -305,7 +310,6 @@ public class PlaceOrdersActivity extends AppCompatActivity
         mSelectMedicineTv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mSelectMedicineTv.clearFocus();
                 showSelectedItemDetails(position);
             }
         });
@@ -325,6 +329,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
         mSelectPharmacyTv.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mOrderedMedicineAdapter.clear();
                 mSelectedPharmacyIndex = position;
             }
 
@@ -336,6 +341,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
     }
 
     private void repopulateThePharmacyList(int index) {
+        mOrderedMedicineAdapter.clear();
         ArrayList<String> pharmacyList = new ArrayList<>();
         if (mSalesPharmacyDetails != null) {
             for (SalesPharmacy salesPharmacy : mSalesPharmacyDetails) {

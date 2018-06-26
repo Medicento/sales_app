@@ -1,5 +1,6 @@
 package com.safdar.medicento.salesappmedicento;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -28,20 +29,17 @@ public class OrderConfirmedActivity extends AppCompatActivity implements View.On
         selectedPharmacyTv.setText(b.getString(Constants.SELECTED_PHARMACY));
 
         TextView orderTotalCost = findViewById(R.id.total_cost);
-        orderTotalCost.setText(String.valueOf(b.getFloat(Constants.ORDER_TOTAL_COST)));
+        orderTotalCost.setText(String.valueOf(ConfirmOrderActivity.finalTotal));
 
         mShareBtn = findViewById(R.id.share_order);
         mPlaceNewOrderBtn = findViewById(R.id.place_new_order);
         mShareBtn.setOnClickListener(this);
         mPlaceNewOrderBtn.setOnClickListener(this);
         mDeliveryDate = findViewById(R.id.delivery_date_tv);
-        mDeliveryDate.setText(new Date().toString());
-    }
+        mDeliveryDate.setText(ConfirmOrderActivity.deliveryDate);
 
-    @Override
-    public void onBackPressed() {
-        NavUtils.navigateUpFromSameTask(this);
-        super.onBackPressed();
+        TextView tv = findViewById(R.id.order_id);
+        tv.setText(ConfirmOrderActivity.orderId);
     }
 
     @Override
