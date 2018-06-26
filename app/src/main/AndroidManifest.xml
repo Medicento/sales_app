@@ -10,9 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AddAreaActivity"
-            android:label="Add Area" />
-        <activity
             android:name=".ConfirmOrderActivity"
             android:label="Confirm Order"
             android:parentActivityName=".PlaceOrdersActivity" />

@@ -55,16 +55,6 @@
             android:inputType="textPhonetic"
             android:textColor="@color/colorPrimaryDark" />
 
-        <TextView
-            android:id="@+id/error_in_medicine_edit_tv"
-            style="@style/Base.TextAppearance.AppCompat.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Please enter valid medicine name"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="gone" />
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

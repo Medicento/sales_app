@@ -1,4 +1,4 @@
-package com.safdar.medicento.salesappmedicento;
+package com.safdar.medicento.salesappmedicento.helperData;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.safdar.medicento.salesappmedicento.R;
+
 import java.util.Iterator;
 import java.util.List;
 
 public class OrderedMedicineAdapter extends ArrayAdapter<OrderedMedicine> {
 
-    List<OrderedMedicine> mList;
+    public List<OrderedMedicine> mList;
     public OrderedMedicineAdapter(Context context, int resource, List<OrderedMedicine> objects){
         super(context, resource, objects);
         mList = objects;

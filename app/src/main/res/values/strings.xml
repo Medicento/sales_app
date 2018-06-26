@@ -33,4 +33,5 @@
     <string name="fetch_pharmacy_action">Fetch pharmacy action</string>
     <string name="login_action">Login action</string>
     <string name="fetch_medicine_action">Fetch Medicine Action</string>
+    <string name="place_order_action">Place Order Action</string>
 </resources>

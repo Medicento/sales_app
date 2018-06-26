@@ -1,8 +1,12 @@
 package com.safdar.medicento.salesappmedicento.networking.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.safdar.medicento.salesappmedicento.helperData.Constants;
+import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicine;
 import com.safdar.medicento.salesappmedicento.R;
 import com.safdar.medicento.salesappmedicento.networking.data.Medicine;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
@@ -14,21 +18,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SalesDataExtractor {
 
-
-    public static Object initiateConnection(String stringUrl, String action, Context ctxt) {
+    static Context mContext;
+    public static Object initiateConnection(String stringUrl, String action, Context ctxt, ArrayList<OrderedMedicine> data) {
         String jsonResponse = "";
         URL url = getUrl(stringUrl);
+        mContext = ctxt;
         ArrayList<SalesArea> salesAreasList;
         ArrayList<SalesPharmacy> salesPharmaciesList;
         ArrayList<Medicine> medicinesDataList;
@@ -50,8 +59,36 @@ public class SalesDataExtractor {
         } else if (action.equals(ctxt.getString(R.string.fetch_medicine_action))) {
             medicinesDataList = extractMedicineDataFromJson(jsonResponse);
             return medicinesDataList;
+        } else if (action.equals(ctxt.getString(R.string.place_order_action))) {
+            extractJsonFromOrderItemsList(data, url);
         }
         return null;
+    }
+
+    private static void extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data,URL url) {
+        JSONArray orderItems = new JSONArray();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        try {
+            for (OrderedMedicine orderedMedicine : data) {
+                JSONObject object = new JSONObject();
+                object.put("medicento_name", orderedMedicine.getMedicineName());
+                object.put("company_name", orderedMedicine.getMedicineCompany());
+                object.put("pharma_id", orderedMedicine.getPharmaId());
+                object.put("qty", String.valueOf(orderedMedicine.getQty()));
+                object.put("rate", String.valueOf(orderedMedicine.getRate()));
+                object.put("cost", String.valueOf(orderedMedicine.getCost()));
+                object.put("salesperson_id", sp.getString(Constants.SALE_PERSON_ID,""));
+                orderItems.put(object);
+            }
+            Log.v("Saf", "\n" + orderItems.toString(1));
+        }catch (JSONException e) {
+            Log.v("Saf", e.toString());
+        }
+        try {
+            sendJsonDataToServer(url, orderItems.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static ArrayList<Medicine> extractMedicineDataFromJson(String jsonResponse) {
@@ -68,7 +105,6 @@ public class SalesDataExtractor {
                         medicineObject.getString("_id")
                 ));
             }
-            Log.v("Saf", medicines.size() + "");
         } catch (JSONException e) {
             Log.e("Saf", e.toString());
         }
@@ -152,10 +188,47 @@ public class SalesDataExtractor {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
             } else {
-                Log.e("EarthQuakeExtractData", "Error response code : " + urlConnection.getResponseCode());
+                Log.e("Saf", "Error response code : " + urlConnection.getResponseCode());
             }
         } catch (IOException e) {
-            Log.e("EarthQuakeExtractData", "Error IOExeception");
+            Log.e("Saf", "Error IOException");
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
+        return jsonResponse;
+    }
+
+    private static String sendJsonDataToServer(URL url, String jsonData) throws IOException {
+        String jsonResponse = "";
+        if (url == null) {
+            return jsonResponse;
+        }
+        HttpURLConnection urlConnection = null;
+        InputStream inputStream = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoOutput(true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+            writer.write(jsonData);
+            writer.close();
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(15000);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == 200) {
+                inputStream = urlConnection.getInputStream();
+                jsonResponse = readFromStream(inputStream);
+                Log.v("Saf", jsonResponse.toString());
+            } else {
+                Log.e("Saf", "Error response code : " + urlConnection.getResponseCode());
+            }
+        } catch (IOException e) {
+            Log.e("Saf", "Error IOException");
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();

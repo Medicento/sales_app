@@ -1,23 +1,24 @@
-package com.safdar.medicento.salesappmedicento;
+package com.safdar.medicento.salesappmedicento.helperData;
 
-class OrderedMedicine {
+public class OrderedMedicine {
     private String mMedicineName;
     private String mMedicineCompany;
     private int mQty;
     private float mRate;
     private float mCost;
-
+    private String mPharmaId;
 
     public OrderedMedicine(){
 
     }
 
-    public OrderedMedicine(String name, String company, int qty, float rate, float cost){
+    public OrderedMedicine(String name, String company, int qty, float rate, float cost, String pharmaId){
         mMedicineName = name;
         mMedicineCompany = company;
         mQty = qty;
         mRate = rate;
         mCost = cost;
+        mPharmaId = pharmaId;
     }
 
     public String getMedicineName() {
@@ -37,6 +38,10 @@ class OrderedMedicine {
     }
 
     public float getCost(){return mCost;}
+
+    public String getPharmaId() {
+        return mPharmaId;
+    }
 
     public void setMedicineCompany(String company) {
         this.mMedicineCompany = company;
