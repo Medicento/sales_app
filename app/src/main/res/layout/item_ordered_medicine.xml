@@ -24,7 +24,6 @@
         android:textColor="@color/colorRedDark"
         android:layout_below="@+id/medicine_name"
         tools:text="Company" />
-
     <TextView
         android:id="@+id/medicine_qty"
         style="@style/Base.TextAppearance.AppCompat"
