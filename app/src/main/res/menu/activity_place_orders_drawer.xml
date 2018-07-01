@@ -11,19 +11,19 @@
         <item
             android:id="@+id/total_sales"
             android:icon="@drawable/ic_assessment_black_24dp"
-            android:title="Total Sales        :" />
+            android:title="" />
         <item
             android:id="@+id/no_of_orders"
             android:icon="@drawable/ic_shopping_cart_black_24dp"
-            android:title="No of Orders     :" />
+            android:title="" />
         <item
             android:id="@+id/returns"
             android:icon="@drawable/ic_compare_arrows_black_24dp"
-            android:title="Returns              :" />
+            android:title="" />
         <item
             android:id="@+id/earnings"
             android:icon="@drawable/ic_monetization_on_black_48dp"
-            android:title="Earnings            :" />
+            android:title="" />
     </group>
 
     <item android:title="Misc">

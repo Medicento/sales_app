@@ -2,6 +2,7 @@ package com.safdar.medicento.salesappmedicento;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.service.autofill.SaveCallback;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.safdar.medicento.salesappmedicento.helperData.Constants;
+import com.safdar.medicento.salesappmedicento.helperData.SavedData;
 
 import java.util.Date;
 
@@ -26,20 +28,21 @@ public class OrderConfirmedActivity extends AppCompatActivity implements View.On
         Bundle b = getIntent().getExtras();
 
         TextView selectedPharmacyTv = findViewById(R.id.pharmacy_selected);
-        selectedPharmacyTv.setText(b.getString(Constants.SELECTED_PHARMACY));
+        selectedPharmacyTv.setText(SavedData.mSelectedPharmacy.getPharmacyName());
 
         TextView orderTotalCost = findViewById(R.id.total_cost);
-        orderTotalCost.setText(String.valueOf(ConfirmOrderActivity.finalTotal));
+        orderTotalCost.setText(SavedData.mOverallCost + "");
 
         mShareBtn = findViewById(R.id.share_order);
         mPlaceNewOrderBtn = findViewById(R.id.place_new_order);
         mShareBtn.setOnClickListener(this);
         mPlaceNewOrderBtn.setOnClickListener(this);
         mDeliveryDate = findViewById(R.id.delivery_date_tv);
-        mDeliveryDate.setText(ConfirmOrderActivity.deliveryDate);
+        mDeliveryDate.setText(SavedData.mDeliveryDate);
 
         TextView tv = findViewById(R.id.order_id);
-        tv.setText(ConfirmOrderActivity.orderId);
+        tv.setText(SavedData.mOrderId);
+
     }
 
     @Override
@@ -52,5 +55,11 @@ public class OrderConfirmedActivity extends AppCompatActivity implements View.On
             case R.id.place_new_order:
                 NavUtils.navigateUpFromSameTask(this);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        SavedData.mOrderedMedicineAdapter = null;
+        super.onPause();
     }
 }

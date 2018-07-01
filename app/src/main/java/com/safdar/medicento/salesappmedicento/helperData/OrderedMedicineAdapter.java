@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -14,156 +17,160 @@ import com.safdar.medicento.salesappmedicento.R;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class OrderedMedicineAdapter extends ArrayAdapter<OrderedMedicine> {
+import static java.security.AccessController.getContext;
 
-    public static List<OrderedMedicine> mList;
+public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicineAdapter.MedicineViewHolder> {
 
-    public OrderedMedicineAdapter(Context context, int resource, List<OrderedMedicine> objects) {
-        super(context, resource, objects);
-        mList = objects;
+    public ArrayList<OrderedMedicine> mMedicinesList;
+    public float mOverallCost = 0;
+    OverallCostChangeListener mOverallCostChangeListener;
+
+    public OrderedMedicineAdapter(ArrayList<OrderedMedicine> list) {
+        mMedicinesList = list;
+    }
+
+    public void setOverallCostChangeListener(OverallCostChangeListener listener) {
+        this.mOverallCostChangeListener = listener;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        ViewHolder viewHolder;
-        TextView MedName = null, MedCompany = null, MedQty = null, MedCost = null, incQty, decQty;
-        if (convertView == null) {
-            convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.item_order_medicine, parent, false);
-            MedName = convertView.findViewById(R.id.medicine_name);
-            MedCompany = convertView.findViewById(R.id.medicine_company);
-            MedQty = convertView.findViewById(R.id.medicine_qty);
-            MedCost = convertView.findViewById(R.id.medicine_cost);
-            incQty = convertView.findViewById(R.id.inc_qty);
-            decQty = convertView.findViewById(R.id.dec_qty);
+    public MedicineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.item_order_medicine, parent, false);
 
-            viewHolder = new ViewHolder(incQty, decQty, MedQty, mList.get(position));
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-        MedName = convertView.findViewById(R.id.medicine_name);
-        MedCompany = convertView.findViewById(R.id.medicine_company);
-        MedQty = convertView.findViewById(R.id.medicine_qty);
-        MedCost = convertView.findViewById(R.id.medicine_cost);
-        incQty = convertView.findViewById(R.id.inc_qty);
-        decQty = convertView.findViewById(R.id.dec_qty);
-
-        viewHolder.mIncQty.setTag(position);
-        viewHolder.mDecQty.setTag(position);
-        OrderedMedicine orderedMedicine = getItem(position);
-
-        assert orderedMedicine != null;
-        MedName.setText(orderedMedicine.getMedicineName());
-        MedCompany.setText(orderedMedicine.getMedicineCompany());
-        MedQty.setText(String.valueOf(orderedMedicine.getQty()));
-        MedCost.setText(String.valueOf(orderedMedicine.getCost()));
-
-        return convertView;
-    }
-
-    private class ViewHolder {
-        TextView mIncQty, mDecQty, mQty;
-        OrderedMedicine mOrderedMedicine;
-
-        public ViewHolder(TextView incQty, TextView decQty, TextView qty, OrderedMedicine medicine) {
-            mIncQty = incQty;
-            mDecQty = decQty;
-            mQty = qty;
-            mIncQty.setOnClickListener(mQtyClickListener);
-            mDecQty.setOnClickListener(mQtyClickListener);
-            mOrderedMedicine = medicine;
-        }
-
-        private View.OnClickListener mQtyClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.getId() == R.id.inc_qty) {
-                    for (OrderedMedicine ordMed : mList) {
-                        if (ordMed.getMedicineName().equals(mOrderedMedicine.getMedicineName()) &&
-                                ordMed.getMedicineCompany().equals(mOrderedMedicine.getMedicineCompany())) {
-                            int qty = ordMed.getQty();
-                            qty++;
-                            ordMed.setQty(qty);
-                            float rate = ordMed.getRate();
-                            ordMed.setCost(qty * rate);
-                            int pos = mList.indexOf(ordMed);
-                            mList.set(pos, ordMed);
-                            notifyDataSetChanged();
-                            return;
-                        }
-                    }
-                } else {
-                    Iterator<OrderedMedicine> iterator = mList.iterator();
-                    while (iterator.hasNext()) {
-                        OrderedMedicine ordMed = iterator.next();
-                        if (ordMed.getMedicineName().equals(mOrderedMedicine.getMedicineName()) &&
-                                ordMed.getMedicineCompany().equals(mOrderedMedicine.getMedicineCompany())) {
-                            int qty = ordMed.getQty();
-                            qty--;
-                            ordMed.setQty(qty);
-                            float rate = ordMed.getRate();
-                            ordMed.setCost(qty * rate);
-                            if (qty == 0) {
-                                iterator.remove();
-                            } else {
-                                ordMed.setQty(qty);
-                                int pos = mList.indexOf(ordMed);
-                                mList.set(pos, ordMed);
-                            }
-                            notifyDataSetChanged();
-                        }
-                    }
-                }
-            }
-        };
+        MedicineViewHolder viewHolder = new MedicineViewHolder(view);
+        return viewHolder;
     }
 
     @Override
-    public void add(@Nullable OrderedMedicine object) {
-        for (OrderedMedicine ordMed : mList) {
-            if (ordMed.getMedicineName().equals(object.getMedicineName()) &&
-                    ordMed.getMedicineCompany().equals(object.getMedicineCompany())) {
-                int qty = ordMed.getQty();
-                qty++;
-                ordMed.setQty(qty);
-                float rate = ordMed.getRate();
-                ordMed.setCost(qty * rate);
-                int pos = mList.indexOf(ordMed);
-                mList.set(pos, ordMed);
-                notifyDataSetChanged();
-                return;
-            }
-        }
-        super.add(object);
+    public void onBindViewHolder(@NonNull MedicineViewHolder holder, int position) {
+        holder.bind(position);
+        holder.itemView.setTag(position);
     }
 
-    public int sub(OrderedMedicine object) {
-        Iterator<OrderedMedicine> iterator = mList.iterator();
-        while (iterator.hasNext()) {
-            OrderedMedicine ordMed = iterator.next();
-            if (ordMed.getMedicineName().equals(object.getMedicineName()) &&
-                    ordMed.getMedicineCompany().equals(object.getMedicineCompany())) {
-                int qty = ordMed.getQty();
-                qty--;
-                ordMed.setQty(qty);
-                float rate = ordMed.getRate();
-                ordMed.setCost(qty * rate);
-                if (qty == 0) {
-                    iterator.remove();
-                } else {
-                    ordMed.setQty(qty);
-                    int pos = mList.indexOf(ordMed);
-                    mList.set(pos, ordMed);
+    @Override
+    public int getItemCount() {
+        return mMedicinesList.size();
+    }
+
+    public void add(OrderedMedicine medicine) {
+        for (OrderedMedicine med: mMedicinesList) {
+            if (medicine.getMedicineName().equals(med.getMedicineName())) {
+                if (medicine.getMedicineCompany().equals(med.getMedicineCompany())) {
+                    int qty = med.getQty();
+                    qty++;
+                    float cost = med.getRate()*qty;
+                    med.setQty(qty);
+                    med.setCost(cost);
+                    mOverallCost += medicine.getCost();
+                    notifyDataSetChanged();
+                    return;
                 }
-                notifyDataSetChanged();
-                return qty;
             }
         }
-        return 0;
+        mMedicinesList.add(0, medicine);
+        mOverallCost += medicine.getCost();
+        notifyItemInserted(0);
+    }
+
+    public void remove(int pos) {
+        float cost = mMedicinesList.get(pos).getCost();
+        mOverallCost -= cost;
+        notifyDataSetChanged();
+        notifyDataSetChanged();
+        if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost);
+        mMedicinesList.remove(pos);
+        notifyDataSetChanged();
+    }
+
+    public void reset() {
+        mMedicinesList.clear();
+        mOverallCost = 0;
+        notifyDataSetChanged();
+    }
+
+    public class MedicineViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+        TextView MedName, MedCompany, MedQty, MedCost, incQty, decQty, MedRate;
+
+        public MedicineViewHolder(View itemView) {
+            super(itemView);
+            MedName = itemView.findViewById(R.id.medicine_name);
+            MedCompany = itemView.findViewById(R.id.medicine_company);
+            MedRate = itemView.findViewById(R.id.medicine_rate);
+            MedQty = itemView.findViewById(R.id.medicine_qty);
+            MedCost = itemView.findViewById(R.id.medicine_cost);
+            incQty = itemView.findViewById(R.id.inc_qty);
+            incQty.setOnClickListener(this);
+            decQty = itemView.findViewById(R.id.dec_qty);
+            decQty.setOnClickListener(this);
+        }
+        public void bind(int pos) {
+            OrderedMedicine medicine = mMedicinesList.get(pos);
+            MedName.setText(medicine.getMedicineName());
+            MedCompany.setText(medicine.getMedicineCompany());
+            MedRate.setText("Rs. " + medicine.getRate() + "/box");
+            MedCost.setText(medicine.getCost() + "");
+            MedQty.setText(medicine.getQty() + "");
+        }
+
+        @Override
+        public void onClick(View v) {
+           int pos = getAdapterPosition();
+           if (v.getId() == R.id.inc_qty) {
+               for (int i = 0; i < mMedicinesList.size(); i++) {
+                   OrderedMedicine med = mMedicinesList.get(i);
+                   if (med.getMedicineName().equals(mMedicinesList.get(pos).getMedicineName())) {
+                       int qty = med.getQty();
+                       qty++;
+                       float cost = med.getRate()*qty;
+                       med.setQty(qty);
+                       med.setCost(cost);
+                       mMedicinesList.set(i, med);
+                       mOverallCost += med.getRate();
+                       if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost);
+                       notifyDataSetChanged();
+                       return;
+                   }
+               }
+           } else {
+               for (int i = 0; i < mMedicinesList.size(); i++) {
+                   OrderedMedicine med = mMedicinesList.get(i);
+                   if (med.getMedicineName().equals(mMedicinesList.get(pos).getMedicineName())) {
+                       int qty = med.getQty();
+                       qty--;
+                       mOverallCost -= med.getRate();
+                       if (mOverallCostChangeListener != null) mOverallCostChangeListener.onCostChanged(mOverallCost);
+                       if (qty == 0) {
+                           mMedicinesList.remove(i);
+                           notifyDataSetChanged();
+                           return;
+                       }
+
+                       float cost = med.getRate()*qty;
+                       med.setQty(qty);
+                       med.setCost(cost);
+                       mMedicinesList.set(i, med);
+                       notifyDataSetChanged();
+                       return;
+                   }
+               }
+           }
+        }
+    }
+
+
+    public float getOverallCost() {
+        return mOverallCost;
+    }
+
+    public interface OverallCostChangeListener {
+        void onCostChanged(float newCost);
     }
 }

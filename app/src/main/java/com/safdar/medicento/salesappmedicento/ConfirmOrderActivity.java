@@ -6,53 +6,66 @@ import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.safdar.medicento.salesappmedicento.helperData.Constants;
 import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicine;
+import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicineAdapter;
+import com.safdar.medicento.salesappmedicento.helperData.SavedData;
 import com.safdar.medicento.salesappmedicento.networking.SalesDataLoader;
 
 import java.util.ArrayList;
 
-public class ConfirmOrderActivity extends AppCompatActivity implements  LoaderManager.LoaderCallbacks<Object>{
+public class ConfirmOrderActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Object>,
+        OrderedMedicineAdapter.OverallCostChangeListener {
     TextView mSelectedPharmacyName;
     ArrayList<OrderedMedicine> list;
-    String selectedPharmacy;
-    static float finalTotal;
-    static String orderId;
-    static String deliveryDate;
-    ProgressBar mProgressBar;
+    ImageView mProgressBar;
+    Animation mAnimation;
+
+    TextView mTotalTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm_order);
 
-        Bundle b = getIntent().getExtras();
-
-        selectedPharmacy = b.getString(Constants.SELECTED_PHARMACY, "");
         mSelectedPharmacyName = findViewById(R.id.pharmacy_selected);
-        mSelectedPharmacyName.setText(selectedPharmacy);
+        mSelectedPharmacyName.setText(SavedData.mSelectedPharmacy.getPharmacyName());
         mProgressBar = findViewById(R.id.place_order_progress);
 
-        ListView listView = findViewById(R.id.ordered_medicines_list_confirmation);
-        listView.setAdapter(PlaceOrdersActivity.mOrderedMedicineAdapter);
+        RecyclerView recyclerView = findViewById(R.id.ordered_medicines_list_confirmation);
 
-        list = (ArrayList<OrderedMedicine>) PlaceOrdersActivity.mOrderedMedicineAdapter.mList;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        final OrderedMedicineAdapter adapter = SavedData.mOrderedMedicineAdapter;
+        recyclerView.setAdapter(adapter);
+        adapter.setOverallCostChangeListener(this);
 
+        list = adapter.mMedicinesList;
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        finalTotal= 0;
-        for (OrderedMedicine ordMed: list) {
-            finalTotal = finalTotal + ordMed.getCost();
-        }
-        TextView totalTv = findViewById(R.id.total_cost);
-        totalTv.setText(String.valueOf(finalTotal));
-
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int pos = (int) viewHolder.itemView.getTag();
+                adapter.remove(pos);
+            }
+        }).attachToRecyclerView(recyclerView);
+        mTotalTv = findViewById(R.id.total_cost);
+        mTotalTv.setText(adapter.getOverallCost() + "");
         Button btn =findViewById(R.id.confirm_order);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,11 +73,18 @@ public class ConfirmOrderActivity extends AppCompatActivity implements  LoaderMa
                 getLoaderManager().initLoader(Constants.PLACE_ORDER_LOADER_ID , null, ConfirmOrderActivity.this);
             }
         });
+
+        mAnimation = new AlphaAnimation(1, 0);
+        mAnimation.setDuration(200);
+        mAnimation.setInterpolator(new LinearInterpolator());
+        mAnimation.setRepeatCount(Animation.INFINITE);
+        mAnimation.setRepeatMode(Animation.REVERSE);
     }
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
         mProgressBar.setVisibility(View.VISIBLE);
+        mProgressBar.startAnimation(mAnimation);
         return new SalesDataLoader(this, Constants.PLACE_ORDER_URL, getString(R.string.place_order_action), list);
     }
 
@@ -72,20 +92,28 @@ public class ConfirmOrderActivity extends AppCompatActivity implements  LoaderMa
     public void onLoadFinished(Loader loader, Object data) {
         mProgressBar.setVisibility(View.GONE);
         String[] x = (String[]) data;
-        orderId = x[0];
-        deliveryDate = x[1];
         Intent intent = new Intent();
-        intent.putExtra(Constants.ORDER_TOTAL_COST, finalTotal);
         if (getParent() == null) {
             setResult(Activity.RESULT_OK, intent);
         } else {
             getParent().setResult(RESULT_OK);
         }
+        SavedData.saveOrderDetails(Float.parseFloat(mTotalTv.getText() + ""), x);
         finish();
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
 
+    }
+
+    @Override
+    public void onCostChanged(float newCost) {
+        mTotalTv.setText(newCost + "");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 }

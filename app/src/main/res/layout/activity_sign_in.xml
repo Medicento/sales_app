@@ -16,9 +16,10 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        app:srcCompat="@drawable/logo_black"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/mdlf"
         tools:ignore="ContentDescription" />
 
         <EditText
@@ -28,7 +29,6 @@
             android:textColor="#ffffff"
             android:textStyle="bold"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
             android:hint="Enter email"
             android:inputType="textEmailAddress" />
 

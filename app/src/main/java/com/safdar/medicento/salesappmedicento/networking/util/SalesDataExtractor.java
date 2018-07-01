@@ -116,6 +116,7 @@ public class SalesDataExtractor {
             JSONObject user = userArray.optJSONObject(0);
             salesPerson = new SalesPerson(user.getString("Name"),
                     user.getLong("Total_sales"),
+                    user.getInt("No_of_order"),
                     user.getInt("Returns"),
                     user.getLong("Earnings"),
                     user.getString("_id"),

@@ -3,14 +3,16 @@ package com.safdar.medicento.salesappmedicento.networking.data;
 public class SalesPerson {
     private String mName;
     private float mTotalSales;
+    private int mNoOfOrder;
     private int mReturn;
     private float mEarnings;
     private String mId;
     private String mAllocatedAreaId;
 
-    public SalesPerson(String name, float totalSales, int returns, float earnings, String id, String allocatedAreaId) {
+    public SalesPerson(String name, float totalSales, int noOfOrder, int returns, float earnings, String id, String allocatedAreaId) {
         mName = name;
         mTotalSales = totalSales;
+        mNoOfOrder = noOfOrder;
         mReturn = returns;
         mEarnings = earnings;
         mId = id;
@@ -24,6 +26,8 @@ public class SalesPerson {
     public float getTotalSales() {
         return mTotalSales;
     }
+
+    public int getNoOfOrder() {return mNoOfOrder;}
 
     public int getReturn() {
         return mReturn;

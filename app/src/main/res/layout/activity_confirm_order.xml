@@ -1,25 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <ProgressBar
-        android:id="@+id/place_order_progress"
-        android:layout_width="wrap_content"
-        android:visibility="gone"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
-
-<LinearLayout
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ConfirmOrderActivity"
     android:layout_marginRight="10dp"
-    android:orientation="vertical"
-    android:layout_marginLeft="10dp"
-    tools:context=".ConfirmOrderActivity">
+    android:layout_marginLeft="10dp">
+
 
     <LinearLayout
+        android:id="@+id/selected_pharmacy_details"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -45,19 +36,20 @@
     </LinearLayout>
 
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/selected_pharmacy_details"
         android:id="@+id/ordered_medicines_list_confirmation"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:background="@drawable/border"
-        tools:listitem="@layout/item_ordered_medicine" />
-
-
+        android:layout_height="match_parent"
+        android:layout_above="@id/total_cost_details"
+        android:background="@drawable/border"/>
 
     <RelativeLayout
+        android:id="@+id/total_cost_details"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/confirm_order"
         android:layout_gravity="center"
         android:orientation="horizontal">
 
@@ -86,11 +78,19 @@
             android:textColor="@color/colorPrimaryDark" />
     </RelativeLayout>
     <Button
+        android:layout_marginBottom="10dp"
         android:id="@+id/confirm_order"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Confirm Order"
         android:layout_gravity="center"/>
-
-</LinearLayout>
+    <ImageView
+        android:id="@+id/place_order_progress"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="@drawable/mdlf"
+        android:visibility="gone"
+        android:layout_centerInParent="true"/>
 </RelativeLayout>
