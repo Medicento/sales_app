@@ -46,12 +46,12 @@ public class SignInActivity extends AppCompatActivity implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        mEmailEditTv = findViewById(R.id.editTextEmail);
-        mPasswordEditTv = findViewById(R.id.editTextPassword);
+        mLogo = findViewById(R.id.medicento_logo);
+        mEmailEditTv = findViewById(R.id.email_edit_tv);
+        mPasswordEditTv = findViewById(R.id.password_edit_tv);
+        Button btn = findViewById(R.id.sign_in_btn);
         mProgressBar = findViewById(R.id.sign_in_progress);
         mProgressBar.setVisibility(View.GONE);
-        mLogo = findViewById(R.id.imageView2);
-        Button btn = findViewById(R.id.login_btn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -6,19 +6,17 @@ public class OrderedMedicine {
     private int mQty;
     private float mRate;
     private float mCost;
-    private String mPharmaId;
 
     public OrderedMedicine(){
 
     }
 
-    public OrderedMedicine(String name, String company, int qty, float rate, float cost, String pharmaId){
+    public OrderedMedicine(String name, String company, int qty, float rate, float cost){
         mMedicineName = name;
         mMedicineCompany = company;
         mQty = qty;
         mRate = rate;
         mCost = cost;
-        mPharmaId = pharmaId;
     }
 
     public String getMedicineName() {
@@ -38,10 +36,6 @@ public class OrderedMedicine {
     }
 
     public float getCost(){return mCost;}
-
-    public String getPharmaId() {
-        return mPharmaId;
-    }
 
     public void setMedicineCompany(String company) {
         this.mMedicineCompany = company;

@@ -8,87 +8,16 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_place_orders">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="4dp"
-            android:orientation="vertical">
+       <FrameLayout
+           android:id="@+id/main_container"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/border"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/area_edit_tv"
-                    style="@android:style/Widget.Holo.Light.Spinner"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:prompt="@string/area_promt"
-                    android:spinnerMode="dialog" />
-
-                <Spinner
-                    android:id="@+id/pharmacy_edit_tv"
-                    android:layout_weight="1"
-                    style="@android:style/Widget.Holo.Light.Spinner"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:prompt="@string/pharmacy_prompt"
-                    android:spinnerMode="dialog" />
-
-            </LinearLayout>
-
-
-            <AutoCompleteTextView
-                android:id="@+id/medicine_edit_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter Medicine"
-                android:inputType="textPhonetic"
-                android:enabled="false"
-                android:textColor="@color/colorPrimaryDark" />
-
-            <TextView
-                style="@style/Base.TextAppearance.AppCompat.Large"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="4dp"
-                android:text="Order List"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:id="@+id/no_network_icon"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:background="@drawable/ic_cloud_off_blue_grey_700_48dp"
-                android:contentDescription="No network"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/no_network_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="No Network"
-                android:visibility="gone" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/ordered_medicines_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/border" />
-        </LinearLayout>
-        <View
+       <View
             android:clickable="false"
             android:id="@+id/loading_wait_view"
             android:layout_width="match_parent"

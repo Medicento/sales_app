@@ -2,6 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/expensePane"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:padding="6dp"
+    android:background="@drawable/border"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -55,7 +60,6 @@
         android:layout_marginEnd="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/border_curved"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true">
         <TextView
@@ -64,13 +68,14 @@
             android:layout_height="wrap_content"
             android:text="+"
             android:textAlignment="center"
-            android:background="@color/colorGreen"
+            android:background="@drawable/border_curved"
             android:clickable="true"
             android:textColor="@android:color/white"
             style="@style/Base.TextAppearance.AppCompat.Large"/>
         <TextView
             android:id="@+id/medicine_qty"
             android:layout_width="50dp"
+            android:background="@drawable/border"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             style="@style/Base.TextAppearance.AppCompat.Large"
@@ -84,16 +89,9 @@
             android:text="-"
             style="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@android:color/white"
-            android:background="@color/colorGreen"
+            android:background="@drawable/border_curved"
             />
     </LinearLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="?android:attr/listDivider" />
 
 
 </RelativeLayout>

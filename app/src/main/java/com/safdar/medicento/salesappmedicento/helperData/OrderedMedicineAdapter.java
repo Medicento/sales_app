@@ -95,6 +95,10 @@ public class OrderedMedicineAdapter extends RecyclerView.Adapter<OrderedMedicine
         notifyDataSetChanged();
     }
 
+    public ArrayList<OrderedMedicine> getList() {
+        return mMedicinesList;
+    }
+
     public class MedicineViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView MedName, MedCompany, MedQty, MedCost, incQty, decQty, MedRate;

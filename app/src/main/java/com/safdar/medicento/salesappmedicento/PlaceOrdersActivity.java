@@ -1,7 +1,6 @@
 package com.safdar.medicento.salesappmedicento;
 
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -12,35 +11,30 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.safdar.medicento.salesappmedicento.fragments.OrderConfirmed;
+import com.safdar.medicento.salesappmedicento.fragments.PlaceOrderFragment;
+import com.safdar.medicento.salesappmedicento.helperData.AreaSpinnerCustomAdapter;
 import com.safdar.medicento.salesappmedicento.helperData.Constants;
-import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicine;
 import com.safdar.medicento.salesappmedicento.helperData.OrderedMedicineAdapter;
 import com.safdar.medicento.salesappmedicento.helperData.PhramaSpinnerCustomAdapter;
 import com.safdar.medicento.salesappmedicento.helperData.SavedData;
-import com.safdar.medicento.salesappmedicento.helperData.AreaSpinnerCustomAdapter;
 import com.safdar.medicento.salesappmedicento.networking.SalesDataLoader;
 import com.safdar.medicento.salesappmedicento.networking.data.Medicine;
 import com.safdar.medicento.salesappmedicento.networking.data.SalesArea;
@@ -50,22 +44,20 @@ import com.safdar.medicento.salesappmedicento.networking.data.SalesPharmacy;
 import java.util.ArrayList;
 
 public class PlaceOrdersActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Object> {
+        implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Object>,PlaceOrderFragment.OnPlaceOrderChangeListener {
 
-    AreaSpinnerCustomAdapter mAreaAdapter;
-    PhramaSpinnerCustomAdapter mPharmaAdapter;
-    ArrayAdapter<String> mMedicineAdapter;
-    ArrayList<Medicine> mMedicineDataList;
+    public static ArrayList<Medicine> mMedicineDataList;
     ArrayList<SalesArea> mSalesAreaDetails;
     ArrayList<SalesPharmacy> mSalesPharmacyDetails;
-    AutoCompleteTextView mSelectMedicineTv;
 
+    FragmentManager mFragmentManager;
+    PlaceOrderFragment mPlaceOrder;
     CoordinatorLayout coordinatorLayout;
+    OrderConfirmed mOrderConfirmed;
 
     ImageView mNoNetworkImage;
     InputMethodManager im;
 
-    RecyclerView mOrderedMedicinesListView;
     NavigationView mNavigationView;
     OrderedMedicineAdapter mOrderedMedicineAdapter;
     ProgressBar mProgressBar;
@@ -76,6 +68,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
     Snackbar mSnackbar;
 
     TextView mNoNetworkInfo;
+    Toolbar mToolbar;
     View mLoadingWaitView;
 
     boolean pharmaLoadFlag, medicineLoadFlag;
@@ -96,11 +89,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_orders);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         mNavigationView = findViewById(R.id.nav_view);
@@ -109,93 +102,17 @@ public class PlaceOrdersActivity extends AppCompatActivity
         mLoadingWaitView = findViewById(R.id.loading_wait_view);
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         mSnackbar = Snackbar.make(coordinatorLayout, "Please wait while the data is being loaded...", Snackbar.LENGTH_INDEFINITE);
-        mNoNetworkImage = findViewById(R.id.no_network_icon);
-        mNoNetworkInfo = findViewById(R.id.no_network_info);
-
-        mSelectAreaSpinner = findViewById(R.id.area_edit_tv);
-        mSelectPharmacySpinner = findViewById(R.id.pharmacy_edit_tv);
-        mSelectMedicineTv = findViewById(R.id.medicine_edit_tv);
-        mOrderedMedicinesListView = findViewById(R.id.ordered_medicines_list);
-        mOrderedMedicinesListView.setLayoutManager(new LinearLayoutManager(this));
-        mOrderedMedicinesListView.setHasFixedSize(true);
+        //mNoNetworkImage = findViewById(R.id.no_network_icon);
+        //mNoNetworkInfo = findViewById(R.id.no_network_info);
 
         addSalesPersonDetailsToNavDrawer();
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        mPlaceOrder = new PlaceOrderFragment();
+        mPlaceOrder.setAreaPharmaSelectListener(this);
 
+        mFragmentManager = getSupportFragmentManager();
 
-        mSelectAreaSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mSelectedArea = mAreaAdapter.getItem(position);
-                if (!calledOnAreaLoadingFinished) {
-                    repopulateThePharmacyList();
-                } else {
-                    calledOnAreaLoadingFinished = false;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        mSelectPharmacySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!calledOnPharmacyLoadingFinished) {
-                    mOrderedMedicineAdapter.reset();
-                } else {
-                    calledOnPharmacyLoadingFinished = false;
-                }
-                mSelectedPharmacy = mPharmaAdapter.getItem(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        mOrderedMedicineAdapter = SavedData.mOrderedMedicineAdapter;
-        mOrderedMedicineAdapter = new OrderedMedicineAdapter(new ArrayList<OrderedMedicine>());
-        mOrderedMedicinesListView.setAdapter(mOrderedMedicineAdapter);
-        mSelectMedicineTv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mSelectMedicineTv.setText("");
-                im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                im.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                Medicine medicine = null;
-                for (Medicine med : mMedicineDataList) {
-                    if (med.getMedicentoName().equals(mMedicineAdapter.getItem(position))) {
-                        medicine = med;
-                        break;
-                    }
-                }
-                mOrderedMedicineAdapter.add(new OrderedMedicine(medicine.getMedicentoName(),
-                        medicine.getCompanyName(),
-                        1,
-                        medicine.getPrice(),
-                        medicine.getPrice(),
-                        mSelectedPharmacy.getId()));
-                mOrderedMedicinesListView.smoothScrollToPosition(0);
-            }
-        });
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int pos = (int) viewHolder.itemView.getTag();
-                mOrderedMedicineAdapter.remove(pos);
-            }
-        }).attachToRecyclerView(mOrderedMedicinesListView);
-
+        mFragmentManager.beginTransaction().add(R.id.main_container, mPlaceOrder).commit();
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(Constants.SALES_AREA_LOADER_ID, null, this);
         getLoaderManager().initLoader(Constants.MEDICINE_DATA_LOADER_ID, null, this);
@@ -223,29 +140,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
         menu.getItem(4).setTitle(salesPersonDetailsLabel[3] + mSharedPreferences.getFloat(Constants.SALE_PERSON_EARNINGS, -1));
     }
 
-    /*This method fills the pharmacy spinner again
-     *when a different area is selected
-     */
-    private void repopulateThePharmacyList() {
-        mOrderedMedicineAdapter.reset();
-        ArrayList<SalesPharmacy> pharmacyList = new ArrayList<>();
-        if (mSalesPharmacyDetails != null) {
-            for (SalesPharmacy salesPharmacy : mSalesPharmacyDetails) {
-                if (mSelectedArea.getId().equals(salesPharmacy.getAreaId())) {
-                    pharmacyList.add(salesPharmacy);
-                }
-            }
-            if (pharmacyList.size() == 0) {
-                Toast.makeText(this, "No Pharmacy available for this area", Toast.LENGTH_SHORT).show();
-                mPharmaAdapter = new PhramaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, new ArrayList<SalesPharmacy>());
-                mSelectPharmacySpinner.setAdapter(mPharmaAdapter);
-                return;
-            }
-            mPharmaAdapter = new PhramaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, pharmacyList);
-            mSelectPharmacySpinner.setAdapter(mPharmaAdapter);
-        }
 
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -258,12 +153,6 @@ public class PlaceOrdersActivity extends AppCompatActivity
             } else {
                 Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                 finish();
-            }
-        } else if (requestCode == Constants.RC_CONFIRM_ORDER) {
-            if (resultCode == RESULT_OK) {
-                SavedData.mOrderedMedicineAdapter = null;
-                Intent intent = new Intent(this, OrderConfirmedActivity.class);
-                startActivity(intent);
             }
         }
     }
@@ -278,29 +167,17 @@ public class PlaceOrdersActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_proceed) {
-            if (canOrderBeConfirmed()) {
-                Intent intent = new Intent(PlaceOrdersActivity.this, ConfirmOrderActivity.class);
-                intent.putExtra(Constants.SELECTED_PHARMACY, mSelectPharmacySpinner.getSelectedItem().toString());
-                startActivityForResult(intent, Constants.RC_CONFIRM_ORDER);
+            if (mPlaceOrder.isInOrderMode()) {
+                mPlaceOrder.transformIntoConfirmOrder();
+                mToolbar.setTitle("Confirm Order!");
+                return true;
+            } else {
+                mPlaceOrder.placeOrder();
+                mToolbar.setTitle("Placing Order...");
                 return true;
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /*This method confirms that the any pharmacy is selected
-     *and that we have ordered something as well
-     */
-    private boolean canOrderBeConfirmed() {
-        if (mSelectPharmacySpinner.getSelectedItem() == null) {
-            Toast.makeText(this, "No Pharmacy selected", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (mOrderedMedicineAdapter.mMedicinesList.size() == 0) {
-            Toast.makeText(this, "Please select some medicines first", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -359,8 +236,11 @@ public class PlaceOrdersActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (mPlaceOrder.isInOrderMode()) {
             super.onBackPressed();
+        } else {
+            mToolbar.setTitle("Place Order");
+            mPlaceOrder.transformIntoPlaceOrder();
         }
     }
 
@@ -402,34 +282,27 @@ public class PlaceOrdersActivity extends AppCompatActivity
             case Constants.SALES_AREA_LOADER_ID:
                 mSalesAreaDetails = (ArrayList<SalesArea>) data;
                 calledOnAreaLoadingFinished = true;
-                ArrayList<String> areaList = new ArrayList<>();
                 if (mSalesAreaDetails.isEmpty()) {
-                    mNoNetworkImage.setVisibility(View.VISIBLE);
-                    mNoNetworkInfo.setVisibility(View.VISIBLE);
+                    //mNoNetworkImage.setVisibility(View.VISIBLE);
+                    //mNoNetworkInfo.setVisibility(View.VISIBLE);
                     pharmaLoadFlag = true;
                     medicineLoadFlag = true;
                     dismissLoadingIndicators();
                     return;
                 }
-                for (SalesArea salesArea : mSalesAreaDetails) {
-                    areaList.add(salesArea.getAreaName());
-                }
-                mAreaAdapter = new AreaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, mSalesAreaDetails);
-                mSelectAreaSpinner.setAdapter(mAreaAdapter);
+                mPlaceOrder.setAreaAdapter(new AreaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, mSalesAreaDetails));
                 getLoaderManager().initLoader(Constants.SALES_PHARMACY_LOADER, null, this);
                 break;
             case Constants.SALES_PHARMACY_LOADER:
                 calledOnPharmacyLoadingFinished = true;
                 mSalesPharmacyDetails = (ArrayList<SalesPharmacy>) data;
                 ArrayList<SalesPharmacy> pharmacyList = new ArrayList<>();
-                boolean first = true;
                 for (SalesPharmacy salesPharmacy : mSalesPharmacyDetails) {
                     if (mSalesAreaDetails.get(0).getId().equals(salesPharmacy.getAreaId())) {
                         pharmacyList.add(salesPharmacy);
                     }
                 }
-                mPharmaAdapter = new PhramaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, pharmacyList);
-                mSelectPharmacySpinner.setAdapter(mPharmaAdapter);
+                mPlaceOrder.setPharmaAdapter(new PhramaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, pharmacyList));
                 pharmaLoadFlag = true;
                 dismissLoadingIndicators();
                 break;
@@ -439,9 +312,7 @@ public class PlaceOrdersActivity extends AppCompatActivity
                 for (Medicine medicine : mMedicineDataList) {
                     medicineList.add(medicine.getMedicentoName());
                 }
-                mMedicineAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, medicineList);
-                mSelectMedicineTv.setAdapter(mMedicineAdapter);
-                mSelectMedicineTv.setThreshold(0);
+                mPlaceOrder.setMedicineAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, medicineList));
                 medicineLoadFlag = true;
                 dismissLoadingIndicators();
                 break;
@@ -470,8 +341,27 @@ public class PlaceOrdersActivity extends AppCompatActivity
             mProgressBar.setVisibility(View.GONE);
             mLoadingWaitView.setVisibility(View.GONE);
             mSnackbar.dismiss();
-            mSelectMedicineTv.setEnabled(true);
         }
+    }
+
+    /*This method fills the pharmacy spinner again
+     *when a different area is selected
+     */
+    private void repopulateThePharmacyList() {
+//        mOrderedMedicineAdapter.reset();
+        ArrayList<SalesPharmacy> pharmacyList = new ArrayList<>();
+        if (mSalesPharmacyDetails != null) {
+            for (SalesPharmacy salesPharmacy : mSalesPharmacyDetails) {
+                if (mSelectedArea.getId().equals(salesPharmacy.getAreaId())) {
+                    pharmacyList.add(salesPharmacy);
+                }
+            }
+            if (pharmacyList.size() == 0) {
+                Toast.makeText(this, "No Pharmacy available for this area", Toast.LENGTH_SHORT).show();
+            }
+            mPlaceOrder.setPharmaAdapter(new PhramaSpinnerCustomAdapter(this, R.layout.spinner_item_layout, pharmacyList));
+        }
+
     }
 
     @Override
@@ -486,7 +376,6 @@ public class PlaceOrdersActivity extends AppCompatActivity
         if (mSharedPreferences.getString(Constants.SALE_PERSON_NAME, "").isEmpty()) {
             Intent intent = new Intent(this, SignInActivity.class);
             startActivityForResult(intent, Constants.RC_SIGN_IN);
-            return;
         }
     }
 
@@ -501,5 +390,27 @@ public class PlaceOrdersActivity extends AppCompatActivity
     protected void onDestroy() {
         SavedData.mOrderedMedicineAdapter = null;
         super.onDestroy();
+    }
+
+    @Override
+    public void onAreaSelected(SalesArea salesArea) {
+        mSelectedArea = salesArea;
+        repopulateThePharmacyList();
+    }
+
+    @Override
+    public void onPharmaSelected(SalesPharmacy salesPharmacy) {
+        mSelectedPharmacy = salesPharmacy;
+    }
+
+    @Override
+    public void onOrderPlaced(OrderedMedicineAdapter adapter, String[] output) {
+        getLoaderManager().initLoader(Constants.LOG_IN_LOADER_ID, null, this);
+        mOrderConfirmed = new OrderConfirmed();
+        mOrderConfirmed.setIdAndDeliveryDate(output);
+        mOrderConfirmed.setAdapter(adapter);
+        mOrderConfirmed.setSelectedPharmacy(mSelectedPharmacy);
+        mToolbar.setTitle("Order Placed!");
+        mFragmentManager.beginTransaction().replace(R.id.main_container, mOrderConfirmed).commit();
     }
 }

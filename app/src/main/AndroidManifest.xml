@@ -10,10 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ConfirmOrderActivity"
-            android:label="Confirm Order"
-            android:parentActivityName=".PlaceOrdersActivity" />
-        <activity
             android:name=".NewPharmacy"
             android:label="Add new Pharmacy"
             android:parentActivityName=".PlaceOrdersActivity" />
@@ -27,6 +23,7 @@
         <activity
             android:name=".PlaceOrdersActivity"
             android:label="Place Order"
+            android:screenOrientation="portrait"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -35,10 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".OrderConfirmedActivity"
-            android:parentActivityName=".PlaceOrdersActivity" />
-        <activity android:name=".SignInActivity"/>
     </application>
 
 </manifest>

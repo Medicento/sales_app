@@ -1,5 +1,6 @@
 package com.safdar.medicento.salesappmedicento.networking.util;
 
+import android.app.LoaderManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 public class SalesDataExtractor {
 
     static Context mContext;
-    public static Object initiateConnection(String stringUrl, String action, Context ctxt, ArrayList<OrderedMedicine> data) {
+    public static Object initiateConnection(String stringUrl, String action, Context ctxt, ArrayList<OrderedMedicine> data, String pharmaId) {
         String jsonResponse = "";
         URL url = getUrl(stringUrl);
         mContext = ctxt;
@@ -57,7 +58,7 @@ public class SalesDataExtractor {
             medicinesDataList = extractMedicineDataFromJson(jsonResponse);
             return medicinesDataList;
         } else if (action.equals(ctxt.getString(R.string.place_order_action))) {
-            String jsonData = extractJsonFromOrderItemsList(data, url);
+            String jsonData = extractJsonFromOrderItemsList(data, url, pharmaId);
             try {
                 return sendJsonDataToServer(url, jsonData);
             } catch (IOException e) {
@@ -67,7 +68,7 @@ public class SalesDataExtractor {
         return null;
     }
 
-    private static String extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data, URL url) {
+    private static String extractJsonFromOrderItemsList(ArrayList<OrderedMedicine> data, URL url, String pharmaId) {
         JSONArray orderItems = new JSONArray();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
         try {
@@ -75,7 +76,7 @@ public class SalesDataExtractor {
                 JSONObject object = new JSONObject();
                 object.put("medicento_name", orderedMedicine.getMedicineName());
                 object.put("company_name", orderedMedicine.getMedicineCompany());
-                object.put("pharma_id", orderedMedicine.getPharmaId());
+                object.put("pharma_id", pharmaId);
                 object.put("qty", String.valueOf(orderedMedicine.getQty()));
                 object.put("rate", String.valueOf(orderedMedicine.getRate()));
                 object.put("cost", String.valueOf(orderedMedicine.getCost()));
@@ -237,6 +238,7 @@ public class SalesDataExtractor {
                 inputStream.close();
             }
         }
+        Log.v("Saf", jsonResponse);
         return extractIdAndDateFromJson(jsonResponse);
     }
 

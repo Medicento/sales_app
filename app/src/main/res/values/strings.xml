@@ -27,11 +27,12 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="action_proceed">Proceed</string>
-    <string name="area_promt">Select Area</string>
+    <string name="area_prompt">Select Area</string>
     <string name="pharmacy_prompt">Select Pharmacy</string>
     <string name="fetch_area_action">Fetch area action</string>
     <string name="fetch_pharmacy_action">Fetch pharmacy action</string>
     <string name="login_action">Login action</string>
     <string name="fetch_medicine_action">Fetch Medicine Action</string>
     <string name="place_order_action">Place Order Action</string>
+
 </resources>
